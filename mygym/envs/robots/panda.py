@@ -54,6 +54,7 @@ class Panda(PyBulletRobot):
 
     def set_action(self, action: np.ndarray) -> None:
         action = action.copy()  # ensure action don't change
+        action = action.flatten()
         action = np.clip(action, self.action_space.low, self.action_space.high)
         if self.control_type == "ee":
             ee_displacement = action[:3]
@@ -81,9 +82,11 @@ class Panda(PyBulletRobot):
         Returns:
             np.ndarray: Target arm angles, as the angles of the 7 arm joints.
         """
+
         ee_displacement = ee_displacement[:3] * 0.05  # limit maximum change in position
         # get the current position and the target position
         ee_position = self.get_ee_position()
+        # print(ee_displacement)
         target_ee_position = ee_position + ee_displacement
         # Clip the height target. For some reason, it has a great impact on learning
         target_ee_position[2] = np.max((0, target_ee_position[2]))

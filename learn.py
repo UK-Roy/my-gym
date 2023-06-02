@@ -1,6 +1,7 @@
 import gymnasium as gym
+import numpy as np
 
-from stable_baselines3 import DQN, PPO, SAC, TD3
+from stable_baselines3 import DQN, PPO, SAC, TD3, DDPG
 from stable_baselines3.common.noise import NormalActionNoise
 from stable_baselines3.common.evaluation import evaluate_policy
 
@@ -10,14 +11,16 @@ env = gym.make("PandaPickAndPlace-v3", render_mode="human")
 
 # Types of Policies: CnnPolicy, MlpPolicy, MultiInputPolicy
 # Instantiate the agent
-model = DQN("MlpPolicy", env, verbose=1)
-# model = PPO("MlpPolicy", env, verbose=1)
-# model = SAC("MlpPolicy", env, train_freq=1, gradient_steps=2, verbose=1)
+model = DDPG(policy="MultiInputPolicy", env=env)
+# model = DQN("MultiInputPolicy", env, verbose=1)
+# model = PPO("MultiInputPolicy", env, verbose=1)
+# model = SAC("MultiInputPolicy", env, train_freq=1, gradient_steps=2, verbose=1)
 
 # n_actions = env.action_space.shape[-1]
 # action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
-# model = TD3("MlpPolicy", env, action_noise=action_noise, verbose=0)
+# model = TD3("MultiInputPolicy", env, action_noise=action_noise, verbose=0)
 
+# model.train(3000)
 # Train the agent and display a progress bar
 model.learn(total_timesteps=int(2e5), progress_bar=True)
 # Save the agent
@@ -33,20 +36,24 @@ model.save("Panda_pick&place")
 # NOTE: If you use wrappers with your environment that modify rewards,
 #       this will be reflected here. To evaluate with original rewards,
 #       wrap environment in a "Monitor" wrapper before other wrappers.
-mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
+mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=100)
+print(f"Mean Reward: {mean_reward}\nSTD Reward:{std_reward}")
 
 # Enjoy trained agent
 vec_env = model.get_env()
 obs = vec_env.reset()
-
-observation, info = env.reset()
-
+# print(obs)
+# observation, info = env.reset()
+# print(observation, info)
 for _ in range(1000):
-    action = model.predict(obs, deterministic=True)
-    observation, reward, terminated, truncated, info = vec_env.step(action)
+    action = model.predict(obs)
+    # observation, reward, terminated, truncated, info = vec_env.step(action)
+    obs, reward, terminated, info = vec_env.step(action)
+    truncated = info[0]['TimeLimit.truncated']
+    Is_success = info[0]['is_success'] 
     vec_env.render("human")
 
     if terminated or truncated:
-        observation, info = vec_env.reset()
+        obs = vec_env.reset()
 
-env.close()
+vec_env.close()
