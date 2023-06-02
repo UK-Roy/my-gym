@@ -99,8 +99,9 @@ def test_load_URDF():
 
     pybullet = PyBullet()
     pybullet.loadURDF(
-        body_name="panda",
-        fileName="franka_panda/panda.urdf",
+        body_name="niryo_one",
+        fileName="/home/ukroy/Documents/mygym/my_gym/mygym/envs/robots/urdf/niryo_one.urdf",
+        # fileName="franka_panda/panda.urdf",
         basePosition=[0.0, 0.0, 0.0],
         useFixedBase=True,
     )
@@ -321,3 +322,5 @@ def test_set_spinning_friction():
     pybullet.create_box("my_box", [0.5, 0.5, 0.5], 1.0, [0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 1.0])
     pybullet.set_spinning_friction("my_box", 0, 0.5)
     pybullet.close()
+
+test_load_URDF()
