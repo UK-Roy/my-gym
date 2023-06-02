@@ -1,0 +1,12 @@
+gymnasium>=0.26
+pybullet
+numpy
+scipy
+
+[develop]
+pytest-cov
+black
+isort
+pytype
+sphinx
+sphinx-rtd-theme
