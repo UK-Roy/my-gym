@@ -1,5 +1,6 @@
 import gymnasium as gym
 import numpy as np
+import time
 
 from stable_baselines3 import DQN, PPO, SAC, TD3, DDPG
 from stable_baselines3.common.noise import NormalActionNoise
@@ -8,7 +9,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import mygym
 
 env = gym.make("PandaPickAndPlace-v3", render_mode="human")
-
+# gym.utils.play.play(env, fps=8)
 # Types of Policies: CnnPolicy, MlpPolicy, MultiInputPolicy
 # Instantiate the agent
 model = DDPG(policy="MultiInputPolicy", env=env)
@@ -51,9 +52,11 @@ for _ in range(1000):
     obs, reward, terminated, info = vec_env.step(action)
     truncated = info[0]['TimeLimit.truncated']
     Is_success = info[0]['is_success'] 
+    done = truncated or terminated
     vec_env.render("human")
+    time.sleep(.01)
 
-    if terminated or truncated:
+    if done:
         obs = vec_env.reset()
 
 vec_env.close()
